@@ -3,3 +3,9 @@
 /DerivedDataCache
 /Intermediate
 /Saved
+/Build/**.log
+
+#visual studio
+.vs/
+*.user
+Build/**/*.log

@@ -3,6 +3,16 @@
 	"EngineAssociation": "4.18",
 	"Category": "",
 	"Description": "",
+	"Modules": [
+		{
+			"Name": "UETut_2DSideScroll_1",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
+		}
+	],
 	"Plugins": [
 		{
 			"Name": "Paper2D",
