@@ -1,0 +1,5 @@
+#ue project folders to ignore
+/Binaries
+/DerivedDataCache
+/Intermediate
+/Saved
