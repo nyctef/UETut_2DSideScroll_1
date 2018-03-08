@@ -1,11 +1,11 @@
 // Copyright Sigurdur Gunnarsson. All Rights Reserved. 
-// Licensed under the MIT License.
+// Licensed under the MIT License. See LICENSE file in the project root for full license information. 
 // Example cube mesh
 
 #pragma once
 
 #include "GameFramework/Actor.h"
-#include "ProceduralMeshComponent.h"
+#include "RuntimeMeshComponent.h"
 #include "SimpleCubeActor.generated.h"
 
 UCLASS()
@@ -35,16 +35,16 @@ protected:
 		USceneComponent* RootNode;
 
 	UPROPERTY()
-		UProceduralMeshComponent* MeshComponent;
+		URuntimeMeshComponent* MeshComponent;
 
 private:
 	void GenerateMesh();
-	void GenerateCube(TArray<FVector>& InVertices, TArray<int32>& InTriangles, FVector InSize);
-	void BuildQuad(TArray<FVector>& InVertices, TArray<int32>& InTriangles, FVector BottomLeft, FVector BottomRight, FVector TopRight, FVector TopLeft, int32& VertexOffset, int32& TriangleOffset, FVector Normal, FVector Tangent);
+	void GenerateCube(TArray<FRuntimeMeshVertexSimple>& InVertices, TArray<int32>& InTriangles, FVector InSize);
+	void BuildQuad(TArray<FRuntimeMeshVertexSimple>& InVertices, TArray<int32>& InTriangles, FVector BottomLeft, FVector BottomRight, FVector TopRight, FVector TopLeft, int32& VertexOffset, int32& TriangleOffset, FPackedNormal Normal, FPackedNormal Tangent);
 
 	// Mesh buffers
-	void SetupMeshBuffers(FVector Size);
+	void SetupMeshBuffers();
 	bool bHaveBuffersBeenInitialized = false;
-	TArray<FVector> Vertices;
+	TArray<FRuntimeMeshVertexSimple> Vertices;
 	TArray<int32> Triangles;
 };
