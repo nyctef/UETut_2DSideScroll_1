@@ -58,12 +58,12 @@ void ASimpleCubeActor::GenerateCube(TArray<FVector>& InVertices, TArray<int32>& 
 	// NOTE: Unreal uses an upper-left origin UV
 	// NOTE: This sample uses a simple UV mapping scheme where each face is the same
 	// NOTE: For a normal facing towards us, be build the polygon CCW in the order 0-1-2 then 0-2-3 to complete the quad.
-	// Remember in Unreal, X is forwards, Y is to your right and Z is up.
 	//
-	//  +Z +X
-	//   |/
-	//   o-- +Y
-
+	//  +Z 
+	//   |
+	//   o-- +X
+	//  /
+	// +Y
 
 	// Calculate a half offset so we get correct center of object
 	float OffsetX = InSize.X / 2.0f;
