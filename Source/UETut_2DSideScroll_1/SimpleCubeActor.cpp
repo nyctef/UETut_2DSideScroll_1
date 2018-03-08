@@ -31,9 +31,10 @@ void ASimpleCubeActor::PostLoad()
 
 void ASimpleCubeActor::SetupMeshBuffers()
 {
-	int32 VertexCount = 6 * 4; // 6 sides on a cube, 4 verts each
+	int32 SideCount = 1;
+	int32 VertexCount = SideCount * 4; // 4 verts each
 	Vertices.AddUninitialized(VertexCount);
-	Triangles.AddUninitialized(6 * 2 * 3); // 2x triangles per cube side, 3 verts each
+	Triangles.AddUninitialized(SideCount * 2 * 3); // 2x triangles per side, 3 verts each
 }
 
 void ASimpleCubeActor::GenerateMesh()
@@ -67,7 +68,7 @@ void ASimpleCubeActor::GenerateCube(TArray<FVector>& InVertices, TArray<int32>& 
 
 	// Calculate a half offset so we get correct center of object
 	float OffsetX = InSize.X / 2.0f;
-	float OffsetY = InSize.Y / 2.0f;
+	float OffsetY = 0.0f;//InSize.Y / 2.0f;
 	float OffsetZ = InSize.Z / 2.0f;
 
 	// Define the 8 corners of the cube
@@ -87,19 +88,19 @@ void ASimpleCubeActor::GenerateCube(TArray<FVector>& InVertices, TArray<int32>& 
 	FVector Tangent = FVector::ZeroVector;
 
 	// Front (+X) face: 0-1-2-3
-	Normal = FVector(1, 0, 0);
-	Tangent = FVector(0, 1, 0);
-	BuildQuad(InVertices, InTriangles, p0, p1, p2, p3, VertexOffset, TriangleOffset, Normal, Tangent);
+	//Normal = FVector(1, 0, 0);
+	//Tangent = FVector(0, 1, 0);
+	//BuildQuad(InVertices, InTriangles, p0, p1, p2, p3, VertexOffset, TriangleOffset, Normal, Tangent);
 
-	// Back (-X) face: 5-4-7-6
-	Normal = FVector(-1, 0, 0);
-	Tangent = FVector(0, -1, 0);
-	BuildQuad(InVertices, InTriangles, p5, p4, p7, p6, VertexOffset, TriangleOffset, Normal, Tangent);
+	//// Back (-X) face: 5-4-7-6
+	//Normal = FVector(-1, 0, 0);
+	//Tangent = FVector(0, -1, 0);
+	//BuildQuad(InVertices, InTriangles, p5, p4, p7, p6, VertexOffset, TriangleOffset, Normal, Tangent);
 
-	// Left (-Y) face: 1-5-6-2
-	Normal = FVector(0, -1, 0);
-	Tangent = FVector(1, 0, 0);
-	BuildQuad(InVertices, InTriangles, p1, p5, p6, p2, VertexOffset, TriangleOffset, Normal, Tangent);
+	//// Left (-Y) face: 1-5-6-2
+	//Normal = FVector(0, -1, 0);
+	//Tangent = FVector(1, 0, 0);
+	//BuildQuad(InVertices, InTriangles, p1, p5, p6, p2, VertexOffset, TriangleOffset, Normal, Tangent);
 
 	// Right (+Y) face: 4-0-3-7
 	Normal = FVector(0, 1, 0);
@@ -107,14 +108,14 @@ void ASimpleCubeActor::GenerateCube(TArray<FVector>& InVertices, TArray<int32>& 
 	BuildQuad(InVertices, InTriangles, p4, p0, p3, p7, VertexOffset, TriangleOffset, Normal, Tangent);
 
 	// Top (+Z) face: 6-7-3-2
-	Normal = FVector(0, 0, 1);
-	Tangent = FVector(0, 1, 0);
-	BuildQuad(InVertices, InTriangles, p6, p7, p3, p2, VertexOffset, TriangleOffset, Normal, Tangent);
+	//Normal = FVector(0, 0, 1);
+	//Tangent = FVector(0, 1, 0);
+	//BuildQuad(InVertices, InTriangles, p6, p7, p3, p2, VertexOffset, TriangleOffset, Normal, Tangent);
 
-	// Bottom (-Z) face: 1-0-4-5
-	Normal = FVector(0, 0, -1);
-	Tangent = FVector(0, -1, 0);
-	BuildQuad(InVertices, InTriangles, p1, p0, p4, p5, VertexOffset, TriangleOffset, Normal, Tangent);
+	//// Bottom (-Z) face: 1-0-4-5
+	//Normal = FVector(0, 0, -1);
+	//Tangent = FVector(0, -1, 0);
+	//BuildQuad(InVertices, InTriangles, p1, p0, p4, p5, VertexOffset, TriangleOffset, Normal, Tangent);
 }
 
 void ASimpleCubeActor::BuildQuad(TArray<FVector>& InVertices, TArray<int32>& InTriangles, FVector BottomLeft, FVector BottomRight, FVector TopRight, FVector TopLeft, int32& VertexOffset, int32& TriangleOffset, FVector Normal, FVector Tangent)
