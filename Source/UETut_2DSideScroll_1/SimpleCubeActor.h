@@ -43,7 +43,7 @@ private:
 	void BuildQuad(TArray<FVector>& InVertices, TArray<int32>& InTriangles, FVector BottomLeft, FVector BottomRight, FVector TopRight, FVector TopLeft, int32& VertexOffset, int32& TriangleOffset, FVector Normal, FVector Tangent);
 
 	// Mesh buffers
-	void SetupMeshBuffers();
+	void SetupMeshBuffers(FVector Size);
 	bool bHaveBuffersBeenInitialized = false;
 	TArray<FVector> Vertices;
 	TArray<int32> Triangles;
