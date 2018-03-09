@@ -31,8 +31,9 @@ void ASimpleCubeActor::PostLoad()
 
 void ASimpleCubeActor::SetupMeshBuffers(FVector Size)
 {
-	int32 SideCount = (int32)Size.X * (int32)Size.Y;
-	int32 VertexCount = SideCount * 4; // 4 verts each
+	//int32 SideCount = (int32)Size.X * (int32)Size.Z;
+	int32 SideCount = (int32)Size.X + 1; // plus 1 for the front quad
+	int32 VertexCount = SideCount * 4; // 4 verts each side
 	Vertices.AddUninitialized(VertexCount);
 	Triangles.AddUninitialized(SideCount * 2 * 3); // 2x triangles per side, 3 verts each
 }
@@ -59,7 +60,7 @@ void ASimpleCubeActor::GenerateCube(TArray<FRuntimeMeshVertexSimple>& InVertices
 	// NOTE: Unreal uses an upper-left origin UV
 	// NOTE: This sample uses a simple UV mapping scheme where each face is the same
 	// NOTE: For a normal facing towards us, be build the polygon CCW in the order 0-1-2 then 0-2-3 to complete the quad.
-	// Remember in Unreal, X is forwards, Y is to your right and Z is up.
+	// Remember in Unreal, X is forwards, Y is to your right and Z is up (relative to the character, not the 2D camera)
 
 	// Calculate a half offset so we get correct center of object
 	float OffsetX = InSize.X / 2.0f;
@@ -69,20 +70,24 @@ void ASimpleCubeActor::GenerateCube(TArray<FRuntimeMeshVertexSimple>& InVertices
 
 	int32 VertexOffset = 0;
 	int32 TriangleOffset = 0;
-	FVector Normal = FVector::ZeroVector;
+	FVector Normal = FVector::UpVector;
 	FVector Tangent = FVector::ZeroVector;
 
+	// build a top strip to walk on
 	for (int32 x = -OffsetX; x < OffsetX; x++) {
-		for (int32 z = -OffsetZ; z < OffsetZ; z++) {
+		//for (int32 z = -OffsetZ; z < OffsetZ; z++) {
 
-			FVector p0 = FVector(x + 1, 0, z);
-			FVector p3 = FVector(x + 1, 0, z + 1);
-			FVector p4 = FVector(x, 0, z);
-			FVector p7 = FVector(x, 0, z + 1);
+			FVector p0 = FVector(x + 1, -1, 0);
+			FVector p3 = FVector(x + 1, +1, 0);
+			FVector p4 = FVector(x, -1, 0);
+			FVector p7 = FVector(x, +1, 0);
 
 			BuildQuad(InVertices, InTriangles, p4, p0, p3, p7, VertexOffset, TriangleOffset, Normal, Tangent);
-		}
+		//}
 	}
+
+	// build a front panel to put some texture on
+	BuildQuad(InVertices, InTriangles, FVector(-OffsetX, 1, -OffsetZ), FVector(OffsetX, 1, -OffsetZ), FVector(OffsetX, 1, 0), FVector(-OffsetX, 1, 0), VertexOffset, TriangleOffset, FVector::ZeroVector, FVector::ZeroVector);
 }
 
 void ASimpleCubeActor::BuildQuad(TArray<FRuntimeMeshVertexSimple>& InVertices, TArray<int32>& InTriangles, FVector BottomLeft, FVector BottomRight, FVector TopRight, FVector TopLeft, int32& VertexOffset, int32& TriangleOffset, FPackedNormal Normal, FPackedNormal Tangent)
