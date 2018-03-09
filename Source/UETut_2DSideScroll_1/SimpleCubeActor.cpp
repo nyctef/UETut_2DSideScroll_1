@@ -71,8 +71,8 @@ void ASimpleCubeActor::GenerateMesh()
 	auto Top = +Size.Z / 2.0f;
 
 	// ref: https://en.wikipedia.org/wiki/Marching_squares
-	for (int mapX = 0; mapX < sx - 1; mapX++) {
-		for (int mapZ = 0; mapZ < sz - 1; mapZ++) {
+	for (int mapZ = 0; mapZ < sz - 1; mapZ++) {
+		for (int mapX = 0; mapX < sx - 1; mapX++) {
 			uint8 cell = 0;
 			if (MapDataAt(MapData, sx, mapX, mapZ)) { cell += 1; }
 			if (MapDataAt(MapData, sx, mapX + 1, mapZ)) { cell += 2; }
