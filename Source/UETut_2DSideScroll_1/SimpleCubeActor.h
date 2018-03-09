@@ -39,12 +39,12 @@ protected:
 
 private:
 	void GenerateMesh();
-	void GenerateCube(TArray<FRuntimeMeshVertexSimple>& InVertices, TArray<int32>& InTriangles, FVector InSize);
-	void BuildQuad(TArray<FRuntimeMeshVertexSimple>& InVertices, TArray<int32>& InTriangles, FVector BottomLeft, FVector BottomRight, FVector TopRight, FVector TopLeft, int32& VertexOffset, int32& TriangleOffset, FPackedNormal Normal, FPackedNormal Tangent);
+	void BuildQuad(TArray<FRuntimeMeshVertexSimple>& InVertices, TArray<int32>& InTriangles, FVector BottomLeft, FVector BottomRight, FVector TopRight, FVector TopLeft, FPackedNormal Normal, FPackedNormal Tangent);
 
 	// Mesh buffers
 	void SetupMeshBuffers(FVector Size);
 	bool bHaveBuffersBeenInitialized = false;
 	TArray<FRuntimeMeshVertexSimple> Vertices;
 	TArray<int32> Triangles;
+	TBitArray<FDefaultBitArrayAllocator> MapData;
 };
