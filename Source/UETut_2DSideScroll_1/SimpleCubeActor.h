@@ -43,8 +43,11 @@ private:
 
 	// Mesh buffers
 	void SetupMeshBuffers(FVector Size);
-	bool bHaveBuffersBeenInitialized = false;
+	//bool bHaveBuffersBeenInitialized = false;
 	TArray<FRuntimeMeshVertexSimple> Vertices;
 	TArray<int32> Triangles;
+
+	TArray<FRuntimeMeshVertexSimple> FrontVertices;
+	TArray<int32> FrontTriangles;
 	TBitArray<FDefaultBitArrayAllocator> MapData;
 };

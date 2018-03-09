@@ -56,12 +56,7 @@ bool MapDataAt(TBitArray<FDefaultBitArrayAllocator> bitArray, int32 rowSize, int
 
 void ASimpleCubeActor::GenerateMesh()
 {
-	// The number of vertices or polygons wont change at runtime, so we'll just allocate the arrays once
-	if (!bHaveBuffersBeenInitialized)
-	{
-		SetupMeshBuffers(Size);
-		bHaveBuffersBeenInitialized = true;
-	}
+	SetupMeshBuffers(Size);
 
 	auto sx = (int32)Size.X;
 	auto sy = (int32)Size.Y;
@@ -70,8 +65,10 @@ void ASimpleCubeActor::GenerateMesh()
 	Vertices.Reset();
 	Triangles.Reset();
 
-	int32 Left = -Size.X / 2.0f;
-	int32 Bottom = -Size.Z / 2.0f;
+	auto Left = -Size.X / 2.0f;
+	auto Bottom = -Size.Z / 2.0f;
+	auto Right = +Size.X / 2.0f;
+	auto Top = +Size.Z / 2.0f;
 
 	// ref: https://en.wikipedia.org/wiki/Marching_squares
 	for (int mapX = 0; mapX < sx - 1; mapX++) {
@@ -150,7 +147,15 @@ void ASimpleCubeActor::GenerateMesh()
 
 	MeshComponent->ClearAllMeshSections();
 	MeshComponent->CreateMeshSection(0, Vertices, Triangles, BoundingBox, true, EUpdateFrequency::Infrequent);
-	MeshComponent->SetMaterial(0, Material);
+
+
+	FrontVertices.Reset();
+	FrontTriangles.Reset();
+
+	BuildQuad(FrontVertices, FrontTriangles, FVector(Left, 1, Bottom), FVector(Right, 1, Bottom), FVector(Right, 1, Top), FVector(Left, 1, Top), FVector::RightVector, FVector::ZeroVector);
+	MeshComponent->CreateMeshSection(1, FrontVertices, FrontTriangles, BoundingBox, false, EUpdateFrequency::Infrequent);
+
+	MeshComponent->SetMaterial(1, Material);
 }
 
 void ASimpleCubeActor::BuildQuad(TArray<FRuntimeMeshVertexSimple>& InVertices, TArray<int32>& InTriangles, FVector BottomLeft, FVector BottomRight, FVector TopRight, FVector TopLeft, FPackedNormal Normal, FPackedNormal Tangent)
