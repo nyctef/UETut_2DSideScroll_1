@@ -5,6 +5,11 @@
 //#include "ProceduralMeshesPrivatePCH.h"
 #include "SimpleCubeActor.h"
 
+DEFINE_STAT(STAT_GenerateMesh);
+DEFINE_STAT(STAT_CheckMapData);
+DEFINE_STAT(STAT_CreateFVecs);
+DEFINE_STAT(STAT_BuildQuads);
+
 ASimpleCubeActor::ASimpleCubeActor()
 {
 	RootNode = CreateDefaultSubobject<USceneComponent>("Root");
@@ -50,12 +55,15 @@ void ASimpleCubeActor::SetupMeshBuffers(FVector Size)
 	//Triangles.AddUninitialized(SideCount * 2 * 3); // 2x triangles per side, 3 verts each
 }
 
-bool MapDataAt(TBitArray<FDefaultBitArrayAllocator> bitArray, int32 rowSize, int32 x, int32 z) {
+FORCEINLINE const FConstBitReference MapDataAt(const TBitArray<FDefaultBitArrayAllocator>& bitArray, const int32& rowSize, const int32& x, const int32& z) {
 	return bitArray[(z*rowSize) + x];
 }
 
 void ASimpleCubeActor::GenerateMesh()
 {
+	UE_LOG(LogTemp, Log, TEXT("GenerateMesh() start"));
+	SCOPE_CYCLE_COUNTER(STAT_GenerateMesh);
+
 	SetupMeshBuffers(Size);
 
 	auto sx = (int32)Size.X;
@@ -74,71 +82,78 @@ void ASimpleCubeActor::GenerateMesh()
 	for (int mapZ = 0; mapZ < sz - 1; mapZ++) {
 		for (int mapX = 0; mapX < sx - 1; mapX++) {
 			uint8 cell = 0;
-			if (MapDataAt(MapData, sx, mapX, mapZ)) { cell += 1; }
-			if (MapDataAt(MapData, sx, mapX + 1, mapZ)) { cell += 2; }
-			if (MapDataAt(MapData, sx, mapX + 1, mapZ + 1)) { cell += 4; }
-			if (MapDataAt(MapData, sx, mapX, mapZ + 1)) { cell += 8; }
+			{
+				SCOPE_CYCLE_COUNTER(STAT_CheckMapData);
 
-			auto cellLeftInner   = FVector(Left + mapX - 0.5, 1, Bottom + mapZ);
-			auto cellLeftOuter   = FVector(Left + mapX - 0.5, 0, Bottom + mapZ);
-			auto cellBottomInner = FVector(Left + mapX,       1, Bottom + mapZ - 0.5);
-			auto cellBottomOuter = FVector(Left + mapX,       0, Bottom + mapZ - 0.5);
-			auto cellRightInner  = FVector(Left + mapX + 0.5, 1, Bottom + mapZ);
-			auto cellRightOuter  = FVector(Left + mapX + 0.5, 0, Bottom + mapZ);
-			auto cellTopInner    = FVector(Left + mapX,       1, Bottom + mapZ + 0.5);
-			auto cellTopOuter    = FVector(Left + mapX,       0, Bottom + mapZ + 0.5);
+				if (MapDataAt(MapData, sx, mapX, mapZ)) { cell += 1; }
+				if (MapDataAt(MapData, sx, mapX + 1, mapZ)) { cell += 2; }
+				if (MapDataAt(MapData, sx, mapX + 1, mapZ + 1)) { cell += 4; }
+				if (MapDataAt(MapData, sx, mapX, mapZ + 1)) { cell += 8; }
+			}
 
-			// TODO: make sure normals are correct + check if vertex ordering is important
+			{
+				SCOPE_CYCLE_COUNTER(STAT_CreateFVecs);
+				auto cellLeftInner = FVector(Left + mapX - 0.5, 1, Bottom + mapZ);
+				auto cellLeftOuter = FVector(Left + mapX - 0.5, 0, Bottom + mapZ);
+				auto cellBottomInner = FVector(Left + mapX, 1, Bottom + mapZ - 0.5);
+				auto cellBottomOuter = FVector(Left + mapX, 0, Bottom + mapZ - 0.5);
+				auto cellRightInner = FVector(Left + mapX + 0.5, 1, Bottom + mapZ);
+				auto cellRightOuter = FVector(Left + mapX + 0.5, 0, Bottom + mapZ);
+				auto cellTopInner = FVector(Left + mapX, 1, Bottom + mapZ + 0.5);
+				auto cellTopOuter = FVector(Left + mapX, 0, Bottom + mapZ + 0.5);
 
-			switch (cell) {
-			case 0b0000:
-				break;
-			case 0b0001:
-				BuildQuad(Vertices, Triangles, cellBottomInner, cellBottomOuter, cellLeftOuter, cellLeftInner, FVector::ZeroVector, FVector::ZeroVector);
-				break;
-			case 0b0010:
-				BuildQuad(Vertices, Triangles, cellRightInner, cellRightOuter, cellBottomOuter, cellBottomInner, FVector::ZeroVector, FVector::ZeroVector);
-				break;
-			case 0b0011:
-				BuildQuad(Vertices, Triangles, cellRightInner, cellRightOuter, cellLeftOuter, cellLeftInner, FVector::ZeroVector, FVector::ZeroVector);
-				break;
-			case 0b0100:
-				BuildQuad(Vertices, Triangles, cellRightInner, cellRightOuter, cellTopOuter, cellTopInner, FVector::ZeroVector, FVector::ZeroVector);
-				break;
-			case 0b0101:
-				BuildQuad(Vertices, Triangles, cellRightInner, cellRightOuter, cellBottomOuter, cellBottomInner, FVector::ZeroVector, FVector::ZeroVector);
-				BuildQuad(Vertices, Triangles, cellLeftInner, cellLeftOuter, cellTopOuter, cellTopInner, FVector::ZeroVector, FVector::ZeroVector);
-				break;
-			case 0b0110:
-				BuildQuad(Vertices, Triangles, cellTopInner, cellTopOuter, cellBottomOuter, cellBottomInner, FVector::ZeroVector, FVector::ZeroVector);
-				break;
-			case 0b0111:
-				BuildQuad(Vertices, Triangles, cellLeftInner, cellLeftOuter, cellTopOuter, cellTopInner, FVector::ZeroVector, FVector::ZeroVector);
-				break;
-			case 0b1000:
-				BuildQuad(Vertices, Triangles, cellLeftInner, cellLeftOuter, cellTopOuter, cellTopInner, FVector::ZeroVector, FVector::ZeroVector);
-				break;
-			case 0b1001:
-				BuildQuad(Vertices, Triangles, cellTopInner, cellTopOuter, cellBottomOuter, cellBottomInner, FVector::ZeroVector, FVector::ZeroVector);
-				break;
-			case 0b1010:
-				BuildQuad(Vertices, Triangles, cellBottomInner, cellBottomOuter, cellLeftOuter, cellLeftInner, FVector::ZeroVector, FVector::ZeroVector);
-				BuildQuad(Vertices, Triangles, cellRightInner, cellRightOuter, cellTopOuter, cellTopInner, FVector::ZeroVector, FVector::ZeroVector);
-				break;
-			case 0b1011:
-				BuildQuad(Vertices, Triangles, cellRightInner, cellRightOuter, cellTopOuter, cellTopInner, FVector::ZeroVector, FVector::ZeroVector);
-				break;
-			case 0b1100:
-				BuildQuad(Vertices, Triangles, cellRightInner, cellRightOuter, cellLeftOuter, cellLeftInner, FVector::ZeroVector, FVector::ZeroVector);
-				break;
-			case 0b1101:
-				BuildQuad(Vertices, Triangles, cellRightInner, cellRightOuter, cellBottomOuter, cellBottomInner, FVector::ZeroVector, FVector::ZeroVector);
-				break;
-			case 0b1110:
-				BuildQuad(Vertices, Triangles, cellBottomInner, cellBottomOuter, cellLeftOuter, cellLeftInner, FVector::ZeroVector, FVector::ZeroVector);
-				break;
-			case 0b1111:
-				break;
+				// TODO: make sure normals are correct + check if vertex ordering is important
+
+				switch (cell) {
+				case 0b0000:
+					break;
+				case 0b0001:
+					BuildQuad(Vertices, Triangles, cellBottomInner, cellBottomOuter, cellLeftOuter, cellLeftInner, FVector::ZeroVector, FVector::ZeroVector);
+					break;
+				case 0b0010:
+					BuildQuad(Vertices, Triangles, cellRightInner, cellRightOuter, cellBottomOuter, cellBottomInner, FVector::ZeroVector, FVector::ZeroVector);
+					break;
+				case 0b0011:
+					BuildQuad(Vertices, Triangles, cellRightInner, cellRightOuter, cellLeftOuter, cellLeftInner, FVector::ZeroVector, FVector::ZeroVector);
+					break;
+				case 0b0100:
+					BuildQuad(Vertices, Triangles, cellRightInner, cellRightOuter, cellTopOuter, cellTopInner, FVector::ZeroVector, FVector::ZeroVector);
+					break;
+				case 0b0101:
+					BuildQuad(Vertices, Triangles, cellRightInner, cellRightOuter, cellBottomOuter, cellBottomInner, FVector::ZeroVector, FVector::ZeroVector);
+					BuildQuad(Vertices, Triangles, cellLeftInner, cellLeftOuter, cellTopOuter, cellTopInner, FVector::ZeroVector, FVector::ZeroVector);
+					break;
+				case 0b0110:
+					BuildQuad(Vertices, Triangles, cellTopInner, cellTopOuter, cellBottomOuter, cellBottomInner, FVector::ZeroVector, FVector::ZeroVector);
+					break;
+				case 0b0111:
+					BuildQuad(Vertices, Triangles, cellLeftInner, cellLeftOuter, cellTopOuter, cellTopInner, FVector::ZeroVector, FVector::ZeroVector);
+					break;
+				case 0b1000:
+					BuildQuad(Vertices, Triangles, cellLeftInner, cellLeftOuter, cellTopOuter, cellTopInner, FVector::ZeroVector, FVector::ZeroVector);
+					break;
+				case 0b1001:
+					BuildQuad(Vertices, Triangles, cellTopInner, cellTopOuter, cellBottomOuter, cellBottomInner, FVector::ZeroVector, FVector::ZeroVector);
+					break;
+				case 0b1010:
+					BuildQuad(Vertices, Triangles, cellBottomInner, cellBottomOuter, cellLeftOuter, cellLeftInner, FVector::ZeroVector, FVector::ZeroVector);
+					BuildQuad(Vertices, Triangles, cellRightInner, cellRightOuter, cellTopOuter, cellTopInner, FVector::ZeroVector, FVector::ZeroVector);
+					break;
+				case 0b1011:
+					BuildQuad(Vertices, Triangles, cellRightInner, cellRightOuter, cellTopOuter, cellTopInner, FVector::ZeroVector, FVector::ZeroVector);
+					break;
+				case 0b1100:
+					BuildQuad(Vertices, Triangles, cellRightInner, cellRightOuter, cellLeftOuter, cellLeftInner, FVector::ZeroVector, FVector::ZeroVector);
+					break;
+				case 0b1101:
+					BuildQuad(Vertices, Triangles, cellRightInner, cellRightOuter, cellBottomOuter, cellBottomInner, FVector::ZeroVector, FVector::ZeroVector);
+					break;
+				case 0b1110:
+					BuildQuad(Vertices, Triangles, cellBottomInner, cellBottomOuter, cellLeftOuter, cellLeftInner, FVector::ZeroVector, FVector::ZeroVector);
+					break;
+				case 0b1111:
+					break;
+				}
 			}
 		}
 	}

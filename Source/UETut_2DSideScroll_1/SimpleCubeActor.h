@@ -8,6 +8,13 @@
 #include "RuntimeMeshComponent.h"
 #include "SimpleCubeActor.generated.h"
 
+DECLARE_STATS_GROUP(TEXT("MeshGen"), STATGROUP_MeshGen, STATCAT_Advanced);
+
+DECLARE_CYCLE_STAT_EXTERN(TEXT("MeshGen ~ GenerateMesh"), STAT_GenerateMesh, STATGROUP_MeshGen, UETUT_2DSIDESCROLL_1_API);
+DECLARE_CYCLE_STAT_EXTERN(TEXT("MeshGen ~ CheckMapData"), STAT_CheckMapData, STATGROUP_MeshGen, UETUT_2DSIDESCROLL_1_API);
+DECLARE_CYCLE_STAT_EXTERN(TEXT("MeshGen ~ CreateFVecs"), STAT_CreateFVecs, STATGROUP_MeshGen, UETUT_2DSIDESCROLL_1_API);
+DECLARE_CYCLE_STAT_EXTERN(TEXT("MeshGen ~ BuildQuads"), STAT_BuildQuads, STATGROUP_MeshGen, UETUT_2DSIDESCROLL_1_API);
+
 UCLASS()
 class UETUT_2DSIDESCROLL_1_API ASimpleCubeActor : public AActor
 {
@@ -29,6 +36,9 @@ public:
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif // WITH_EDITOR
 
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+	void GenerateMesh();
+
 protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Default)
@@ -38,7 +48,6 @@ protected:
 		URuntimeMeshComponent* MeshComponent;
 
 private:
-	void GenerateMesh();
 	void BuildQuad(TArray<FRuntimeMeshVertexSimple>& InVertices, TArray<int32>& InTriangles, FVector BottomLeft, FVector BottomRight, FVector TopRight, FVector TopLeft, FPackedNormal Normal, FPackedNormal Tangent);
 
 	// Mesh buffers
