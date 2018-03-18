@@ -35,6 +35,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Debug")
 	void GenerateMesh();
 
+	UFUNCTION(BlueprintCallable, Category = "Updates")
+	void RemoveSquare(FVector holePos, FVector holeSize);
+
 protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Default)

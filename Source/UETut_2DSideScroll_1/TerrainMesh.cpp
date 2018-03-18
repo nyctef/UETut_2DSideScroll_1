@@ -35,10 +35,11 @@ void ATerrainMesh::SetupMeshBuffers(FVector Size)
 	auto sx = (int32)Size.X;
 	auto sy = (int32)Size.Y;
 	auto sz = (int32)Size.Z;
-	//int32 SideCount = (int32)Size.X * (int32)Size.Z;
-	//int32 SideCount = sx + 1; // plus 1 for the front quad
+
 	int32 VertexCount = (sx + 1) * (sz + 1);
 	MapData.Init(true, sx * sz);
+
+	// add a border of space around the edges of the map
 	for (int32 x = 0; x < sx; x++) {
 		MapData[x] = false;
 		MapData[(sx*sz) - x - 1] = false;
@@ -47,12 +48,14 @@ void ATerrainMesh::SetupMeshBuffers(FVector Size)
 		MapData[z*sx] = false;
 		MapData[(z*sx) + (sx - 1)] = false;
 	}
-	//Vertices.AddUninitialized(VertexCount);
-	//Triangles.AddUninitialized(SideCount * 2 * 3); // 2x triangles per side, 3 verts each
 }
 
-FORCEINLINE const FConstBitReference MapDataAt(const TBitArray<FDefaultBitArrayAllocator>& bitArray, int32 rowSize, int32 x, int32 z) {
-	return bitArray[(z*rowSize) + x];
+FORCEINLINE const FConstBitReference IsSolidAt(const TBitArray<FDefaultBitArrayAllocator>& mapData, int32 rowSize, int32 x, int32 z) {
+	return mapData[(z*rowSize) + x];
+}
+
+FORCEINLINE void SetIsSolidAt(TBitArray<FDefaultBitArrayAllocator>& mapData, int32 rowSize, int32 x, int32 z, bool value) {
+	mapData[(z*rowSize) + x] = value;
 }
 
 void ATerrainMesh::GenerateMesh()
@@ -81,10 +84,10 @@ void ATerrainMesh::GenerateMesh()
 			{
 				SCOPE_CYCLE_COUNTER(STAT_CheckMapData);
 
-				if (MapDataAt(MapData, sx, mapX, mapZ)) { cell += 1; }
-				if (MapDataAt(MapData, sx, mapX + 1, mapZ)) { cell += 2; }
-				if (MapDataAt(MapData, sx, mapX + 1, mapZ + 1)) { cell += 4; }
-				if (MapDataAt(MapData, sx, mapX, mapZ + 1)) { cell += 8; }
+				if (IsSolidAt(MapData, sx, mapX, mapZ)) { cell += 1; }
+				if (IsSolidAt(MapData, sx, mapX + 1, mapZ)) { cell += 2; }
+				if (IsSolidAt(MapData, sx, mapX + 1, mapZ + 1)) { cell += 4; }
+				if (IsSolidAt(MapData, sx, mapX, mapZ + 1)) { cell += 8; }
 			}
 
 			{
@@ -201,3 +204,16 @@ void ATerrainMesh::PostEditChangeProperty(FPropertyChangedEvent& PropertyChanged
 	}
 }
 #endif // WITH_EDITOR
+
+void ATerrainMesh::RemoveSquare(FVector holePos, FVector holeSize)
+{
+	auto sx = (int32)Size.X;
+
+	for (int mapZ = holePos.Z; mapZ < holePos.Z + holeSize.Z; mapZ++) {
+		for (int mapX = holePos.X; mapX < holePos.X + holeSize.X; mapX++) {
+			SetIsSolidAt(MapData, sx, mapX, mapZ, false);
+		}
+	}
+
+	GenerateMesh();
+}
