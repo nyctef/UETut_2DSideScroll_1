@@ -30,8 +30,14 @@ void ATerrainMesh::PostLoad()
 	GenerateMesh();
 }
 
-void ATerrainMesh::SetupMeshBuffers(FVector Size)
+void ATerrainMesh::SetupBuffers(FVector Size)
 {
+	if (updateTextureRegion) {
+		delete updateTextureRegion;
+	} 
+	
+	updateTextureRegion = new FUpdateTextureRegion2D(0, 0, 0, 0, Size.X, Size.Z);
+
 	auto sx = (int32)Size.X;
 	auto sy = (int32)Size.Y;
 	auto sz = (int32)Size.Z;
@@ -63,10 +69,10 @@ void ATerrainMesh::GenerateMesh()
 	UE_LOG(LogTemp, Log, TEXT("GenerateMesh() start"));
 	SCOPE_CYCLE_COUNTER(STAT_GenerateMesh);
 
-	SetupMeshBuffers(Size);
+	SetupBuffers(Size);
 
 	auto sx = (int32)Size.X;
-	auto sy = (int32)Size.Y;
+	//auto sy = (int32)Size.Y;
 	auto sz = (int32)Size.Z;
 
 	Vertices.Reset();
@@ -162,14 +168,26 @@ void ATerrainMesh::GenerateMesh()
 	MeshComponent->ClearAllMeshSections();
 	MeshComponent->CreateMeshSection(0, Vertices, Triangles, BoundingBox, true, EUpdateFrequency::Infrequent);
 
-
 	FrontVertices.Reset();
 	FrontTriangles.Reset();
 
 	BuildQuad(FrontVertices, FrontTriangles, FVector(Left, 1, Bottom), FVector(Right, 1, Bottom), FVector(Right, 1, Top), FVector(Left, 1, Top), FVector::RightVector, FVector::ZeroVector);
 	MeshComponent->CreateMeshSection(1, FrontVertices, FrontTriangles, BoundingBox, false, EUpdateFrequency::Infrequent);
 
-	MeshComponent->SetMaterial(1, Material);
+	DynamicMaterial = UMaterialInstanceDynamic::Create(Material, this);
+
+	// Create echo texture
+	MapTexture = UTexture2D::CreateTransient(sx, sz);
+	MapTexture->UpdateResource();
+
+	// Initialize data
+	data.Init(FColor(0, 0, 255, 255), sx*sz);
+
+	MapTexture->UpdateTextureRegions((int32)0, (uint32)1, updateTextureRegion, (uint32)(4 * sx), (uint32)4, (uint8*)data.GetData());
+
+	DynamicMaterial->SetTextureParameterValue(FName("Texture"), MapTexture);
+
+	MeshComponent->SetMaterial(1, DynamicMaterial);
 }
 
 void ATerrainMesh::BuildQuad(TArray<FRuntimeMeshVertexSimple>& InVertices, TArray<int32>& InTriangles, FVector BottomLeft, FVector BottomRight, FVector TopRight, FVector TopLeft, FPackedNormal Normal, FPackedNormal Tangent)

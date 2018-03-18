@@ -20,10 +20,10 @@ public:
 	ATerrainMesh();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Procedural Parameters")
-		FVector Size = FVector(100.0f, 100.0f, 100.0f);
+	FVector Size = FVector(100.0f, 100.0f, 100.0f);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Procedural Parameters")
-		UMaterialInterface* Material;
+	UMaterialInterface* Material;
 
 	virtual void PostLoad() override;
 	virtual void PostActorCreated() override;
@@ -38,6 +38,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Updates")
 	void RemoveSquare(FVector holePos, FVector holeSize);
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Echo)
+	UTexture2D* MapTexture;
+
 protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Default)
@@ -50,7 +53,7 @@ private:
 	void BuildQuad(TArray<FRuntimeMeshVertexSimple>& InVertices, TArray<int32>& InTriangles, FVector BottomLeft, FVector BottomRight, FVector TopRight, FVector TopLeft, FPackedNormal Normal, FPackedNormal Tangent);
 
 	// Mesh buffers
-	void SetupMeshBuffers(FVector Size);
+	void SetupBuffers(FVector Size);
 	//bool bHaveBuffersBeenInitialized = false;
 	TArray<FRuntimeMeshVertexSimple> Vertices;
 	TArray<int32> Triangles;
@@ -58,4 +61,11 @@ private:
 	TArray<FRuntimeMeshVertexSimple> FrontVertices;
 	TArray<int32> FrontTriangles;
 	TBitArray<FDefaultBitArrayAllocator> MapData;
+
+	UMaterialInstanceDynamic* DynamicMaterial;
+
+	UPROPERTY()
+	TArray<FColor> data;
+
+	FUpdateTextureRegion2D *updateTextureRegion;
 };
