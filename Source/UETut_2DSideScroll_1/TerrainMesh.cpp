@@ -174,9 +174,11 @@ void ATerrainMesh::GenerateMesh()
 	BuildQuad(FrontVertices, FrontTriangles, FVector(Left, 1, Bottom), FVector(Right, 1, Bottom), FVector(Right, 1, Top), FVector(Left, 1, Top), FVector::RightVector, FVector::ZeroVector);
 	MeshComponent->CreateMeshSection(1, FrontVertices, FrontTriangles, BoundingBox, false, EUpdateFrequency::Infrequent);
 
+	// todo: free this next time
 	DynamicMaterial = UMaterialInstanceDynamic::Create(Material, this);
 
 	// Create echo texture
+	// todo: free this next time
 	MapTexture = UTexture2D::CreateTransient(sx, sz);
 	MapTexture->UpdateResource();
 

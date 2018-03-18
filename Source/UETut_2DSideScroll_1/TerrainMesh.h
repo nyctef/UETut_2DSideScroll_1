@@ -38,7 +38,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Updates")
 	void RemoveSquare(FVector holePos, FVector holeSize);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Echo)
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Echo)
 	UTexture2D* MapTexture;
 
 protected:
