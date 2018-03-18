@@ -51,7 +51,7 @@ void ATerrainMesh::SetupMeshBuffers(FVector Size)
 	//Triangles.AddUninitialized(SideCount * 2 * 3); // 2x triangles per side, 3 verts each
 }
 
-FORCEINLINE const FConstBitReference MapDataAt(const TBitArray<FDefaultBitArrayAllocator>& bitArray, const int32& rowSize, const int32& x, const int32& z) {
+FORCEINLINE const FConstBitReference MapDataAt(const TBitArray<FDefaultBitArrayAllocator>& bitArray, int32 rowSize, int32 x, int32 z) {
 	return bitArray[(z*rowSize) + x];
 }
 
