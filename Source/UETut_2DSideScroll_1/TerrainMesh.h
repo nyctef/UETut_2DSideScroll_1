@@ -2,7 +2,7 @@
 
 #include "GameFramework/Actor.h"
 #include "RuntimeMeshComponent.h"
-#include "SimpleCubeActor.generated.h"
+#include "TerrainMesh.generated.h"
 
 DECLARE_STATS_GROUP(TEXT("MeshGen"), STATGROUP_MeshGen, STATCAT_Advanced);
 
@@ -12,12 +12,12 @@ DECLARE_CYCLE_STAT_EXTERN(TEXT("MeshGen ~ CreateFVecs"), STAT_CreateFVecs, STATG
 DECLARE_CYCLE_STAT_EXTERN(TEXT("MeshGen ~ BuildQuads"), STAT_BuildQuads, STATGROUP_MeshGen, UETUT_2DSIDESCROLL_1_API);
 
 UCLASS()
-class UETUT_2DSIDESCROLL_1_API ASimpleCubeActor : public AActor
+class UETUT_2DSIDESCROLL_1_API ATerrainMesh : public AActor
 {
 	GENERATED_BODY()
 
 public:
-	ASimpleCubeActor();
+	ATerrainMesh();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Procedural Parameters")
 		FVector Size = FVector(100.0f, 100.0f, 100.0f);

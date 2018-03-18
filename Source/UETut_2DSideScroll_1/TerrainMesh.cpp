@@ -1,12 +1,12 @@
 //#include "ProceduralMeshesPrivatePCH.h"
-#include "SimpleCubeActor.h"
+#include "TerrainMesh.h"
 
 DEFINE_STAT(STAT_GenerateMesh);
 DEFINE_STAT(STAT_CheckMapData);
 DEFINE_STAT(STAT_CreateFVecs);
 DEFINE_STAT(STAT_BuildQuads);
 
-ASimpleCubeActor::ASimpleCubeActor()
+ATerrainMesh::ATerrainMesh()
 {
 	RootNode = CreateDefaultSubobject<USceneComponent>("Root");
 	RootComponent = RootNode;
@@ -17,20 +17,20 @@ ASimpleCubeActor::ASimpleCubeActor()
 }
 
 // This is called when actor is spawned (at runtime or when you drop it into the world in editor)
-void ASimpleCubeActor::PostActorCreated()
+void ATerrainMesh::PostActorCreated()
 {
 	Super::PostActorCreated();
 	GenerateMesh();
 }
 
 // This is called when actor is already in level and map is opened
-void ASimpleCubeActor::PostLoad()
+void ATerrainMesh::PostLoad()
 {
 	Super::PostLoad();
 	GenerateMesh();
 }
 
-void ASimpleCubeActor::SetupMeshBuffers(FVector Size)
+void ATerrainMesh::SetupMeshBuffers(FVector Size)
 {
 	auto sx = (int32)Size.X;
 	auto sy = (int32)Size.Y;
@@ -55,7 +55,7 @@ FORCEINLINE const FConstBitReference MapDataAt(const TBitArray<FDefaultBitArrayA
 	return bitArray[(z*rowSize) + x];
 }
 
-void ASimpleCubeActor::GenerateMesh()
+void ATerrainMesh::GenerateMesh()
 {
 	UE_LOG(LogTemp, Log, TEXT("GenerateMesh() start"));
 	SCOPE_CYCLE_COUNTER(STAT_GenerateMesh);
@@ -169,7 +169,7 @@ void ASimpleCubeActor::GenerateMesh()
 	MeshComponent->SetMaterial(1, Material);
 }
 
-void ASimpleCubeActor::BuildQuad(TArray<FRuntimeMeshVertexSimple>& InVertices, TArray<int32>& InTriangles, FVector BottomLeft, FVector BottomRight, FVector TopRight, FVector TopLeft, FPackedNormal Normal, FPackedNormal Tangent)
+void ATerrainMesh::BuildQuad(TArray<FRuntimeMeshVertexSimple>& InVertices, TArray<int32>& InTriangles, FVector BottomLeft, FVector BottomRight, FVector TopRight, FVector TopLeft, FPackedNormal Normal, FPackedNormal Tangent)
 {
 	int32 Index1 = InVertices.Add(FRuntimeMeshVertexSimple(BottomLeft, Normal));
 	int32 Index2 = InVertices.Add(FRuntimeMeshVertexSimple(BottomRight, Normal));
@@ -185,17 +185,17 @@ void ASimpleCubeActor::BuildQuad(TArray<FRuntimeMeshVertexSimple>& InVertices, T
 }
 
 #if WITH_EDITOR
-void ASimpleCubeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+void ATerrainMesh::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
 	FName MemberPropertyChanged = (PropertyChangedEvent.MemberProperty ? PropertyChangedEvent.MemberProperty->GetFName() : NAME_None);
 
-	if ((MemberPropertyChanged == GET_MEMBER_NAME_CHECKED(ASimpleCubeActor, Size)))
+	if ((MemberPropertyChanged == GET_MEMBER_NAME_CHECKED(ATerrainMesh, Size)))
 	{
 		GenerateMesh();
 	}
-	else if ((MemberPropertyChanged == GET_MEMBER_NAME_CHECKED(ASimpleCubeActor, Material)))
+	else if ((MemberPropertyChanged == GET_MEMBER_NAME_CHECKED(ATerrainMesh, Material)))
 	{
 		MeshComponent->SetMaterial(0, Material);
 	}
