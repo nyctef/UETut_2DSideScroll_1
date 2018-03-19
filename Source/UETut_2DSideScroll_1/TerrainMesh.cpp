@@ -5,6 +5,7 @@ DEFINE_STAT(STAT_GenerateMesh);
 DEFINE_STAT(STAT_CheckMapData);
 DEFINE_STAT(STAT_CreateFVecs);
 DEFINE_STAT(STAT_BuildQuads);
+DEFINE_STAT(STAT_SetupBuffers);
 
 ATerrainMesh::ATerrainMesh()
 {
@@ -20,6 +21,7 @@ ATerrainMesh::ATerrainMesh()
 void ATerrainMesh::PostActorCreated()
 {
 	Super::PostActorCreated();
+	SetupBuffers(Size);
 	GenerateMesh();
 }
 
@@ -27,11 +29,15 @@ void ATerrainMesh::PostActorCreated()
 void ATerrainMesh::PostLoad()
 {
 	Super::PostLoad();
+	SetupBuffers(Size);
 	GenerateMesh();
 }
 
 void ATerrainMesh::SetupBuffers(FVector Size)
 {
+	UE_LOG(LogTemp, Log, TEXT("GenerateMesh() start"));
+	SCOPE_CYCLE_COUNTER(STAT_SetupBuffers);
+
 	if (updateTextureRegion) {
 		delete updateTextureRegion;
 	} 
@@ -68,8 +74,6 @@ void ATerrainMesh::GenerateMesh()
 {
 	UE_LOG(LogTemp, Log, TEXT("GenerateMesh() start"));
 	SCOPE_CYCLE_COUNTER(STAT_GenerateMesh);
-
-	SetupBuffers(Size);
 
 	auto sx = (int32)Size.X;
 	//auto sy = (int32)Size.Y;
@@ -197,6 +201,7 @@ void ATerrainMesh::GenerateMesh()
 	}
 	data[0] = blue;
 	data[1] = red;
+	data[750] = red;
 
 	MapTexture->UpdateTextureRegions((int32)0, (uint32)1, updateTextureRegion, (uint32)(4 * sx), (uint32)4, (uint8*)data.GetData());
 
@@ -229,6 +234,7 @@ void ATerrainMesh::PostEditChangeProperty(FPropertyChangedEvent& PropertyChanged
 
 	if ((MemberPropertyChanged == GET_MEMBER_NAME_CHECKED(ATerrainMesh, Size)))
 	{
+		SetupBuffers(Size);
 		GenerateMesh();
 	}
 	else if ((MemberPropertyChanged == GET_MEMBER_NAME_CHECKED(ATerrainMesh, Material)))
