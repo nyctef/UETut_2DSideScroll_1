@@ -184,24 +184,16 @@ void ATerrainMesh::GenerateMesh()
 	// todo: free this next time
 	DynamicMaterial = UMaterialInstanceDynamic::Create(Material, this);
 
-	// Create echo texture
 	// todo: free this next time
 	MapTexture = UTexture2D::CreateTransient(sx, sz);
 	MapTexture->UpdateResource();
 
 	// Initialize data
-	auto blue = FColor(0, 0, 255, 255);
-	auto green = FColor(0, 255, 0, 255);
-	auto red = FColor(255, 0, 0, 255);
-
-	data.Init(blue, sx*sz);
+	data.Init(FColor::Blue, sx*sz);
 
 	for (int i = 0; i < sx*sz; i++) {
-		data[i] = MapData[i] ? blue : red;
+		data[i] = MapData[i] ? FColor::Blue : FColor::Transparent;
 	}
-	data[0] = blue;
-	data[1] = red;
-	data[750] = red;
 
 	MapTexture->UpdateTextureRegions((int32)0, (uint32)1, updateTextureRegion, (uint32)(4 * sx), (uint32)4, (uint8*)data.GetData());
 
