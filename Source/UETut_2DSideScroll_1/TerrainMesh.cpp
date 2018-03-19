@@ -240,10 +240,15 @@ void ATerrainMesh::PostEditChangeProperty(FPropertyChangedEvent& PropertyChanged
 
 void ATerrainMesh::RemoveSquare(FVector holePos, FVector holeSize)
 {
+	auto minX = holePos.X; auto maxX = holePos.X + holeSize.X;
+	auto minZ = holePos.Z; auto maxZ = holePos.Z + holeSize.Z;
+
+	UE_LOG(LogTemp, Log, TEXT("ATerrainMesh::RemoveSquare from %f,%f to %f,%f"), minX, minZ, maxX, maxZ);
+
 	auto sx = (int32)Size.X;
 
-	for (int mapZ = holePos.Z; mapZ < holePos.Z + holeSize.Z; mapZ++) {
-		for (int mapX = holePos.X; mapX < holePos.X + holeSize.X; mapX++) {
+	for (int mapZ = minX; mapZ < maxZ; mapZ++) {
+		for (int mapX = minX; mapX < maxX; mapX++) {
 			SetIsSolidAt(MapData, sx, mapX, mapZ, false);
 		}
 	}
