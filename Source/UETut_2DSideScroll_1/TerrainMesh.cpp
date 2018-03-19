@@ -183,7 +183,17 @@ void ATerrainMesh::GenerateMesh()
 	MapTexture->UpdateResource();
 
 	// Initialize data
-	data.Init(FColor(0, 0, 255, 255), sx*sz);
+	auto blue = FColor(0, 0, 255, 255);
+	auto green = FColor(0, 255, 0, 255);
+	auto red = FColor(255, 0, 0, 255);
+
+	data.Init(blue, sx*sz);
+
+	for (int i = 0; i < sx*sz; i++) {
+		data[i] = MapData[i] ? blue : red;
+	}
+	data[0] = blue;
+	data[1] = red;
 
 	MapTexture->UpdateTextureRegions((int32)0, (uint32)1, updateTextureRegion, (uint32)(4 * sx), (uint32)4, (uint8*)data.GetData());
 
@@ -194,10 +204,10 @@ void ATerrainMesh::GenerateMesh()
 
 void ATerrainMesh::BuildQuad(TArray<FRuntimeMeshVertexSimple>& InVertices, TArray<int32>& InTriangles, FVector BottomLeft, FVector BottomRight, FVector TopRight, FVector TopLeft, FPackedNormal Normal, FPackedNormal Tangent)
 {
-	int32 Index1 = InVertices.Add(FRuntimeMeshVertexSimple(BottomLeft, Normal));
-	int32 Index2 = InVertices.Add(FRuntimeMeshVertexSimple(BottomRight, Normal));
-	int32 Index3 = InVertices.Add(FRuntimeMeshVertexSimple(TopRight, Normal));
-	int32 Index4 = InVertices.Add(FRuntimeMeshVertexSimple(TopLeft, Normal));
+	int32 Index1 = InVertices.Add(FRuntimeMeshVertexSimple(BottomLeft, Normal, FRuntimeMeshTangent(0,0,0), FVector2D(0,0)));
+	int32 Index2 = InVertices.Add(FRuntimeMeshVertexSimple(BottomRight, Normal, FRuntimeMeshTangent(0, 0, 0), FVector2D(1, 0)));
+	int32 Index3 = InVertices.Add(FRuntimeMeshVertexSimple(TopRight, Normal, FRuntimeMeshTangent(0, 0, 0), FVector2D(1, 1)));
+	int32 Index4 = InVertices.Add(FRuntimeMeshVertexSimple(TopLeft, Normal, FRuntimeMeshTangent(0, 0, 0), FVector2D(0, 1)));
 	InTriangles.Add(Index1);
 	InTriangles.Add(Index2);
 	InTriangles.Add(Index3);
