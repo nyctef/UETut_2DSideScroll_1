@@ -39,7 +39,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Updates")
 	void RemoveSquare(FVector holePos, FVector holeSize);
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Echo)
+	UPROPERTY()
 	UTexture2D* MapTexture;
 
 protected:
@@ -63,6 +63,7 @@ private:
 	TArray<int32> FrontTriangles;
 	TBitArray<FDefaultBitArrayAllocator> MapData;
 
+	UPROPERTY()
 	UMaterialInstanceDynamic* DynamicMaterial;
 
 	UPROPERTY()
