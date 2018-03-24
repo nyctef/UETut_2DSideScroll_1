@@ -68,7 +68,7 @@ FORCEINLINE const FConstBitReference IsSolidAt(const TBitArray<FDefaultBitArrayA
 }
 
 FORCEINLINE void SetIsSolidAt(TBitArray<FDefaultBitArrayAllocator>& mapData, int32 rowSize, int32 x, int32 z, bool value) {
-	UE_LOG(LogTemp, Log, TEXT("SetIsSolidAt %d,%d with row size %d to %d"), x, z, rowSize, value);
+	//UE_LOG(LogTemp, Log, TEXT("SetIsSolidAt %d,%d with row size %d to %d"), x, z, rowSize, value);
 	mapData[(z*rowSize) + x] = value;
 }
 
@@ -242,12 +242,10 @@ void ATerrainMesh::RemoveSquare(FVector holePos, FVector holeSize)
 {
 	UE_LOG(LogTemp, Log, TEXT("ATerrainMesh::RemoveSquare ( %f,%f , %f,%f ) in size %f,%f"), holePos.X, holePos.Z, holeSize.X, holeSize.Z, Size.X, Size.Z);
 
-	auto minX = (int32)std::max(holePos.X, 0.0f);
-	UE_LOG(LogTemp, Log, TEXT("max of %f and %f is %d"), holePos.X, 0.0f, minX);
-	auto maxX = (int32)std::min(holePos.X + holeSize.X, Size.X);
-	UE_LOG(LogTemp, Log, TEXT("min of %f and %f is %d"), holePos.X + holeSize.X, Size.X, maxX);
-	auto minZ = (int32)std::max(holePos.Z, 0.0f);
-	auto maxZ = (int32)std::min(holePos.Z + holeSize.Z, Size.Z);
+	auto minX = (int32)std::max(holePos.X - holeSize.X/2, 0.0f);
+	auto maxX = (int32)std::min(holePos.X + holeSize.X/2, Size.X);
+	auto minZ = (int32)std::max(holePos.Z - holeSize.Z/2, 0.0f);
+	auto maxZ = (int32)std::min(holePos.Z + holeSize.Z/2, Size.Z);
 
 	UE_LOG(LogTemp, Log, TEXT("ATerrainMesh::RemoveSquare from %d,%d to %d,%d"), minX, minZ, maxX, maxZ);
 
