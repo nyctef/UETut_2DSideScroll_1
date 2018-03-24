@@ -38,6 +38,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Updates")
 	void RemoveSquare(FVector holePos, FVector holeSize);
+	UFUNCTION(BlueprintCallable, Category = "Updates")
+	void RemoveCircle(FVector holePos, float holeSize);
 
 	UPROPERTY()
 	UTexture2D* MapTexture;

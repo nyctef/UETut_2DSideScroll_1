@@ -257,3 +257,30 @@ void ATerrainMesh::RemoveSquare(FVector holePos, FVector holeSize)
 
 	GenerateMesh();
 }
+
+void ATerrainMesh::RemoveCircle(FVector holePos, float holeDiameter)
+{
+	UE_LOG(LogTemp, Log, TEXT("ATerrainMesh::RemoveCircle ( %f,%f , %f ) in size %f,%f"), holePos.X, holePos.Z, holeDiameter, Size.X, Size.Z);
+
+	auto holeRadius = holeDiameter / 2;
+
+	auto minHole = -holeRadius;
+	auto maxHole = +holeRadius;
+
+	UE_LOG(LogTemp, Log, TEXT("ATerrainMesh::RemoveCircle from %f,%f to %f,%f"), holePos.X+minHole, holePos.Z+minHole, holePos.X+maxHole, holePos.Z+maxHole);
+
+	for (auto holeZ = minHole; holeZ < maxHole; holeZ++) {
+		for (auto holeX = minHole; holeX < maxHole; holeX++) {
+			auto mapZ = holePos.Z + holeZ;
+			auto mapX = holePos.X + holeX;
+
+			if (mapZ < 0 || mapZ > Size.Z) { continue; }
+			if (mapX < 0 || mapX > Size.X) { continue; }
+			if (sqrt(holeX * holeX + holeZ * holeZ) > holeRadius) { continue; }
+
+			SetIsSolidAt(MapData, (int32)Size.X, mapX, mapZ, false);
+		}
+	}
+
+	GenerateMesh();
+}
