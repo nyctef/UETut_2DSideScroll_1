@@ -84,10 +84,10 @@ void ATerrainMesh::GenerateMesh()
 	Vertices.Reset();
 	Triangles.Reset();
 
-	auto Left = -Size.X / 2.0f;
-	auto Bottom = -Size.Z / 2.0f;
-	auto Right = +Size.X / 2.0f;
-	auto Top = +Size.Z / 2.0f;
+	auto Left = 0.0f;
+	auto Bottom = 0.0f;
+	auto Right = +Size.X;
+	auto Top = +Size.Z;
 
 	// ref: https://en.wikipedia.org/wiki/Marching_squares
 	for (int mapZ = 0; mapZ < sz - 1; mapZ++) {
@@ -172,7 +172,7 @@ void ATerrainMesh::GenerateMesh()
 		}
 	}
 
-	FBox BoundingBox = FBox(-Size / 2.0f, Size / 2.0f);
+	FBox BoundingBox = FBox(FVector::ZeroVector, Size);
 
 	MeshComponent->ClearAllMeshSections();
 	MeshComponent->CreateMeshSection(0, Vertices, Triangles, BoundingBox, true, EUpdateFrequency::Infrequent);
